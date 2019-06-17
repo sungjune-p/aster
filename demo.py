@@ -7,6 +7,19 @@ import numpy as np
 
 from aster.protos import pipeline_pb2
 from aster.builders import model_builder
+import sys
+from pymongo import MongoClient
+import pymongo
+
+# Connect mongo database
+client = MongoClient('127.0.0.1', 27017)
+db = client.testdb
+col = db.video
+
+#doc = {"_id": "Frame_number", "Text": ''}
+col.remove({})
+#col.insert(doc)
+
 
 # supress TF logging duplicates
 logging.getLogger('tensorflow').propagate = False
@@ -81,8 +94,8 @@ def main(_):
       with open(os.path.join(FLAGS.data_dir, file), 'rb') as f:
         input_image_str = f.read()
 
-
       sess_outputs = sess.run(fetches, feed_dict={input_image_str_tensor: input_image_str})
+      text = sess_outputs['recognition_text'].decode('utf-8')
 
       print('Recognized text for %s: {}'.format(sess_outputs['recognition_text'].decode('utf-8')) %file)
 
@@ -92,6 +105,12 @@ def main(_):
       rectified_image_save_path = os.path.join(FLAGS.data_dir, 'rectifed %s' %file)
       rectified_image_pil.save(rectified_image_save_path)
       print('Rectified image saved to {}'.format(rectified_image_save_path))
+
+      col.update(
+        {"_id": '_'.join([file.split('_')[0], file.split('_')[1]])},
+        {"$push": {"Text": text}},
+        upsert = True
+      )
 
 if __name__ == '__main__':
   tf.app.run()
