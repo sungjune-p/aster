@@ -12,7 +12,7 @@ from pymongo import MongoClient
 import pymongo
 
 # Connect mongo database
-client = MongoClient('127.0.0.1', 27017)
+client = MongoClient('mongo', 27017)
 db = client.testdb
 col = db.video
 
