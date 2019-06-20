@@ -7,19 +7,16 @@ import numpy as np
 
 from aster.protos import pipeline_pb2
 from aster.builders import model_builder
-import sys
 from pymongo import MongoClient
 import pymongo
+import csv
+
 
 # Connect mongo database
 client = MongoClient('mongo', 27017)
 db = client.testdb
 col = db.video
-
-#doc = {"_id": "Frame_number", "Text": ''}
 col.remove({})
-#col.insert(doc)
-
 
 # supress TF logging duplicates
 logging.getLogger('tensorflow').propagate = False
@@ -31,11 +28,13 @@ flags.DEFINE_string('exp_dir', 'aster/experiments/demo/',
                     'Directory containing config, training log and evaluations')
 #flags.DEFINE_string('input_image', 'aster/data/demo.jpg', 'Demo image')
 flags.DEFINE_string('data_dir', 'aster/data/test_images', 'Input Cropped Images')
+flags.DEFINE_string('tsv_dir', 'aster/data/tsvs', 'Input .tsv file directory')
+
 FLAGS = flags.FLAGS
 
 
 def get_configs_from_exp_dir():
-  pipeline_config_path = os.path.join(FLAGS.exp_dir, 'config/trainval.prototxt')
+  pipeline_config_path = os.path.join(FLAGSc.exp_dir, 'config/trainval.prototxt')
 
   pipeline_config = pipeline_pb2.TrainEvalPipelineConfig()
   with tf.gfile.GFile(pipeline_config_path, 'r') as f:
@@ -93,6 +92,20 @@ def main(_):
     for file in image_list:
       with open(os.path.join(FLAGS.data_dir, file), 'rb') as f:
         input_image_str = f.read()
+      
+      # Read .tsv file to get frame info
+      tsv_path = os.path.join(FLAGS.tsv_dir, file.split('_')[0][4:]+'.tsv')
+        # print("tsv_path : ", tsv_path)
+      with open(tsv_path) as tsv_file:
+	tsv_reader = csv.reader(tsv_file, delimiter="\t")
+	frame_data = []
+	i = 0
+	for line in tsv_reader:
+	  if i == 0:
+	    pass
+	  else:
+	    frame_data.append(line)
+	  i += 1
 
       sess_outputs = sess.run(fetches, feed_dict={input_image_str_tensor: input_image_str})
       text = sess_outputs['recognition_text'].decode('utf-8')
@@ -105,10 +118,16 @@ def main(_):
       rectified_image_save_path = os.path.join(FLAGS.data_dir, 'rectifed %s' %file)
       rectified_image_pil.save(rectified_image_save_path)
       print('Rectified image saved to {}'.format(rectified_image_save_path))
+      print('Check Video Number : ', file.split('_')[0])
+      print('Check Image Name : ', '_'.join([file.split('_')[0],file.split('_')[1]]))
+
+      key_frame_num = int(file.split('_')[0])
+      frame_seg = frame_data[key_frame_num-1][0]+'-'+frame_data[key_frame_num-1][2]
+      video_name_and_frame = '_'.join([file.split('_')[0][4:], frame_seg])
 
       col.update(
-        {"_id": '_'.join([file.split('_')[0], file.split('_')[1]])},
-        {"$push": {"Text": text}},
+        {"_id": video_name_and_frame},
+        {"$addToSet": {"Text": text}},
         upsert = True
       )
 
