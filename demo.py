@@ -95,7 +95,6 @@ def main(_):
       
       # Read .tsv file to get frame info
       tsv_path = os.path.join(FLAGS.tsv_dir, file.split('_')[0][4:]+'.tsv')
-        # print("tsv_path : ", tsv_path)
       with open(tsv_path) as tsv_file:
 	tsv_reader = csv.reader(tsv_file, delimiter="\t")
 	frame_data = []
@@ -110,7 +109,7 @@ def main(_):
       sess_outputs = sess.run(fetches, feed_dict={input_image_str_tensor: input_image_str})
       text = sess_outputs['recognition_text'].decode('utf-8')
 
-      print('Recognized text for %s: {}'.format(sess_outputs['recognition_text'].decode('utf-8')) %file)
+      print('Recognized text for ',file,' : {}'.format(sess_outputs['recognition_text'].decode('utf-8')))
 
       rectified_image = sess_outputs['rectified_images'][0]
       rectified_image_pil = Image.fromarray((128 * (rectified_image + 1.0)).astype(np.uint8))
@@ -121,7 +120,7 @@ def main(_):
       print('Check Video Number : ', file.split('_')[0])
       print('Check Image Name : ', '_'.join([file.split('_')[0],file.split('_')[1]]))
 
-      key_frame_num = int(file.split('_')[0])
+      key_frame_num = int(file.split('_')[1])
       frame_seg = frame_data[key_frame_num-1][0]+'-'+frame_data[key_frame_num-1][2]
       video_name_and_frame = '_'.join([file.split('_')[0][4:], frame_seg])
 
