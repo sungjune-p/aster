@@ -15,7 +15,7 @@ import csv
 # Connect mongo database
 client = MongoClient('mongo', 27017)
 db = client.testdb
-col = db.video
+col = db.scene_text
 col.remove({})
 
 # supress TF logging duplicates
@@ -26,9 +26,12 @@ logging.basicConfig(level=logging.INFO)
 flags = tf.app.flags
 flags.DEFINE_string('exp_dir', 'aster/experiments/demo/',
                     'Directory containing config, training log and evaluations')
-#flags.DEFINE_string('input_image', 'aster/data/demo.jpg', 'Demo image')
+# flags.DEFINE_string('input_image', 'aster/data/demo.jpg', 'Demo image')
+
+########## Adjust directory path ##########
 flags.DEFINE_string('data_dir', 'aster/data/test_images', 'Input Cropped Images')
 flags.DEFINE_string('tsv_dir', 'aster/data/tsvs', 'Input .tsv file directory')
+########## Adjust directory path ##########
 
 FLAGS = flags.FLAGS
 
@@ -113,7 +116,7 @@ def main(_):
 
       rectified_image = sess_outputs['rectified_images'][0]
       rectified_image_pil = Image.fromarray((128 * (rectified_image + 1.0)).astype(np.uint8))
-      #input_image_dir = os.path.dirname(FLAGS.input_image)
+      # input_image_dir = os.path.dirname(FLAGS.input_image)
       rectified_image_save_path = os.path.join(FLAGS.data_dir, 'rectifed %s' %file)
       rectified_image_pil.save(rectified_image_save_path)
       print('Rectified image saved to {}'.format(rectified_image_save_path))
