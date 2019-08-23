@@ -13,7 +13,7 @@ import csv
 
 
 # Connect mongo database
-client = MongoClient('mongo_uploader', 27017)
+client = MongoClient('mongo', 27017)
 db = client.testdb
 col = db.scene_text
 col.remove({})
