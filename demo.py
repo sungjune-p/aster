@@ -119,7 +119,7 @@ def main(_):
         # frame_seg = frame_data[key_frame_num-1][0]+'-'+frame_data[key_frame_num-1][2]
         # video_name_and_frame = '_'.join([file.split('_')[0][4:], frame_seg])
 
-            col.update({"video": video_number, "startFrame": start_frame}, {"video": video_number, "startFrame": start_frame, "endFrame": end_frame, "startSecond": start_time, "endSecond": end_time, "text": text}, upsert = True)
+            col.update({"video": video_number, "startFrame": start_frame}, {"$set": {"video": video_number, "startFrame": start_frame, "endFrame": end_frame, "startSecond": start_time, "endSecond": end_time}, "$addToSet": {"text": text}}, upsert = True)
 
             vid_num = file.split('_')[0][4:]
 
