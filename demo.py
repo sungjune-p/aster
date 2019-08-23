@@ -97,10 +97,10 @@ def main(_):
                             frame_data.append(line)
                         i += 1
 
-        sess_outputs = sess.run(fetches, feed_dict={input_image_str_tensor: input_image_str})
-        text = sess_outputs['recognition_text'].decode('utf-8')
+            sess_outputs = sess.run(fetches, feed_dict={input_image_str_tensor: input_image_str})
+            text = sess_outputs['recognition_text'].decode('utf-8')
 
-        print('Recognized text for ',file,' : {}'.format(sess_outputs['recognition_text'].decode('utf-8')))
+            print('Recognized text for ',file,' : {}'.format(sess_outputs['recognition_text'].decode('utf-8')))
 
         # rectified_image = sess_outputs['rectified_images'][0]
         # rectified_image_pil = Image.fromarray((128 * (rectified_image + 1.0)).astype(np.uint8))
@@ -109,19 +109,19 @@ def main(_):
         # rectified_image_pil.save(rectified_image_save_path)
         # print('Rectified image saved to {}'.format(rectified_image_save_path))
         # print('Check Video Number : ', file.split('_')[0])
-        print('Check Image Name : ', '_'.join([file.split('_')[0], file.split('_')[1]]))
-        video_number = int(file.split('_')[0][4:])
-        key_frame_num = int(file.split('_')[1])
-        start_frame = int(frame_data[key_frame_num - 1][0])
-        end_frame = int(frame_data[key_frame_num - 1][2])
-        start_time = float(frame_data[key_frame_num - 1][1])
-        end_time = float(frame_data[key_frame_num - 1][3])
+            print('Check Image Name : ', '_'.join([file.split('_')[0], file.split('_')[1]]))
+            video_number = int(file.split('_')[0][4:])
+            key_frame_num = int(file.split('_')[1])
+            start_frame = int(frame_data[key_frame_num - 1][0])
+            end_frame = int(frame_data[key_frame_num - 1][2])
+            start_time = float(frame_data[key_frame_num - 1][1])
+            end_time = float(frame_data[key_frame_num - 1][3])
         # frame_seg = frame_data[key_frame_num-1][0]+'-'+frame_data[key_frame_num-1][2]
         # video_name_and_frame = '_'.join([file.split('_')[0][4:], frame_seg])
 
-        col.update({"video": video_number, "startFrame": start_frame}, {"video": video_number, "startFrame": start_frame, "endFrame": end_frame, "startSecond": start_time, "endSecond": end_time, "text": text}, upsert = True)
+            col.update({"video": video_number, "startFrame": start_frame}, {"video": video_number, "startFrame": start_frame, "endFrame": end_frame, "startSecond": start_time, "endSecond": end_time, "text": text}, upsert = True)
 
-        vid_num = file.split('_')[0][4:]
+            vid_num = file.split('_')[0][4:]
 
 if __name__ == '__main__':
     tf.app.run()
